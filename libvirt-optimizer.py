@@ -2,8 +2,8 @@
 import sys
 from util.arg_parser import ArgParser
 from operation.optimize import optimize
-from operation.domain import get_domain_with_capabilities
-from operation.capabilities import finalize_capabilities
+from operation.capabilities.domain import get_domain_with_capabilities
+from operation.capabilities.capabilities import finalize_capabilities
 from lxml import etree
 from util.utils import eprint
 from operation.util import indent

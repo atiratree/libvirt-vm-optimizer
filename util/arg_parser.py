@@ -1,19 +1,22 @@
 import argparse
 from argparse import ArgumentError
-from operation.util import Profile
+from util.utils import Profile
 
 
 class Settings:
     def __init__(self, libvirt_xml=None,
                  output_xml=None,
-                 profile=Profile.DEFAULT,
                  in_place=False,
+                 profile=Profile.DEFAULT,
+                 prefer_hyperthread_pinning=False,
                  connection_uri=None):
         self.libvirt_xml = libvirt_xml
         self.output_xml = output_xml
         self.profile = profile
         self.in_place = in_place
         self.connection_uri = connection_uri
+
+        self.prefer_hyperthread_pinning = prefer_hyperthread_pinning
 
 
 class ArgParser:
@@ -29,20 +32,25 @@ class ArgParser:
                             dest='output',
                             required=False, const=True,
                             help=f'output file (will be printed to stdout if not specified)')
+
+        parser.add_argument('-i', '--in-place', action='store_true',
+                            dest='in_place',
+                            help=f'edit files in place')
+
         parser.add_argument('-p', '--profile', type=str, nargs='?',
                             dest='profile',
                             default='default',
                             required=False, const=True,
                             help=f'one of (default, cpu, server )')
+        parser.add_argument('-t', '--prefer-hyperthreading', action='store_true',
+                            dest='hyperthreading',
+                            help=f'prefer hyperthreading when pinning cpus (slower but prefered when running multiple VMs)')
+
         parser.add_argument('-c', '--connect', type=str, nargs='?',
                             dest='uri',
                             default='qemu:///system',
                             required=False, const=True,
                             help=f'connection URI (uses default connection if not specified)')
-
-        parser.add_argument('-i', '--in-place', action='store_true',
-                            dest='in_place',
-                            help=f'edit files in place')
 
         args = parser.parse_args()
 
@@ -55,12 +63,14 @@ class ArgParser:
         profile = Profile.from_str(args.profile)
         in_place = args.in_place
         uri = args.uri
+        hyperthreading = args.hyperthreading
 
         if in_place and not libvirt_xml:
             raise ArgumentError(None, message="no LIBVIRT_XML specified")
 
         return Settings(libvirt_xml=libvirt_xml,
                         output_xml=output_xml,
-                        profile=profile,
                         in_place=in_place,
+                        profile=profile,
+                        prefer_hyperthread_pinning=hyperthreading,
                         connection_uri=uri)

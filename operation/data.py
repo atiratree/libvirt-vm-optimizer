@@ -1,5 +1,6 @@
-from operation.util import has, get_text
-from util.utils import to_bytes
+from operation.elements import get_number
+from util.utils import to_bytes, has
+from lxml import etree
 
 
 class Capabilities:
@@ -35,6 +36,16 @@ class Topology:
         self.cores = cores
         self.threads = threads
 
+    def as_xml(self):
+        topology = etree.Element('topology')
+        topology.set('sockets', str(self.sockets))
+        topology.set('cores', str(self.cores))
+        topology.set('threads', str(self.threads))
+        return topology
+
+    def __repr__(self) -> str:
+        return f'{self.sockets}, {self.cores}, {self.threads}'
+
 
 class NUMACell:
     def __init__(self, xcell):
@@ -42,8 +53,9 @@ class NUMACell:
         self.distances = {}  # keys are NUMA cell (node) ids
         self.cpus = {}  # keys are cpu ids
 
-        memory = xcell.find('memory')
-        self.memory_bytes = to_bytes(int(get_text(memory)), memory.get('unit', 'B')) if has(memory) else 0
+        memory, memory_unit = get_number(xcell, 'memory', assert_positive=True,
+                                         error_msg='numa cell libvirt capabilites: ')
+        self.memory_bytes = to_bytes(memory, memory_unit)
 
         for sibling in xcell.iterfind('distances/sibling'):
             self.distances[int(sibling.get('id'))] = int(sibling.get('value'))
@@ -52,10 +64,14 @@ class NUMACell:
             cpu = CPU(xcpu)
             self.cpus[cpu.id] = cpu
 
+    def __repr__(self) -> str:
+        return f'{str(self.id)} : memory {self.memory_bytes}B'
+
 
 class CPU:
     def __init__(self, xcpu):
         self.id = int(xcpu.get('id'))
+        self.vcpu_id = None
         self.siblings = set()  # cpu ids
 
         siblings = xcpu.get('siblings')
@@ -67,3 +83,12 @@ class CPU:
                 for sibling in range(first, (first if length == 1 else int(interval[length - 1])) + 1):
                     if sibling != self.id:
                         self.siblings.add(sibling)
+
+    def as_xml(self):
+        vcpupin = etree.Element('vcpupin')
+        vcpupin.set('vcpu', str(self.vcpu_id))
+        vcpupin.set('cpuset', str(self.id))
+        return vcpupin
+
+    def __repr__(self) -> str:
+        return f'{str(self.id)} : siblings {str(self.siblings)}'

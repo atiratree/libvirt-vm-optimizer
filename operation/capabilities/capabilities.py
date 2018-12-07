@@ -1,6 +1,8 @@
 from lxml import etree
 import libvirt
-from operation.util import has, get_text, XMLExeption
+from operation.util import XMLExeption
+from util.utils import has
+from operation.elements import get_text
 from operation.data import NUMACell, Topology
 
 
