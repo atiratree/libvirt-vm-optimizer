@@ -19,32 +19,27 @@ class Profile(Enum):
         return Profile.DEFAULT
 
 
-def get_domain(tree):
-    domains = tree.xpath('/domain')
-
-    if len(domains) == 0:
-        raise XMLExeption("no domain was specified")
-
-    domain = domains[0]
-    type = domain.get('type')
-
-    if type != 'kvm' and type != 'qemu':
-        raise XMLExeption("only kvm and qemu /domain[@type] is supported")
-
-    return domain
-
-
 def indent(elem, level=0):
-    i = "\n" + level*"  "
+    i = "\n" + level * "  "
     if len(elem):
         if not elem.text or not elem.text.strip():
             elem.text = i + "  "
         if not elem.tail or not elem.tail.strip():
             elem.tail = i
         for elem in elem:
-            indent(elem, level+1)
+            indent(elem, level + 1)
         if not elem.tail or not elem.tail.strip():
             elem.tail = i
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
+
+
+def has(x):
+    return x is not None
+
+
+def get_text(node):
+    if has(node):
+        return node.text
+    return None
