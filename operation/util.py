@@ -43,3 +43,8 @@ def get_text(node):
     if has(node):
         return node.text
     return None
+
+
+def remove_elements(node, name):
+    for found in node.iterfind(name):
+        found.getparent().remove(found)
