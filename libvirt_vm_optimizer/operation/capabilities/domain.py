@@ -1,5 +1,5 @@
-from operation.util import XMLExeption
-from operation.data import Capabilities, DomainInfo
+from libvirt_vm_optimizer.operation.util import XMLExeption
+from libvirt_vm_optimizer.operation.data import Capabilities, DomainInfo
 
 ALLOWED_DOMAIN_TYPES = {'kvm', 'qemu'}
 

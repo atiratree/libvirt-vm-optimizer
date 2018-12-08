@@ -1,8 +1,9 @@
 from lxml import etree
 import sys
-from util.utils import to_bytes, Profile
-from operation.cpupinning.cell_pinning import get_cpus_to_pin
-from operation.elements import get_cpu, get_cputune, remove_elements, get_number
+
+from libvirt_vm_optimizer.util.utils import to_bytes, Profile
+from libvirt_vm_optimizer.operation.cpupinning.cell_pinning import get_cpus_to_pin
+from libvirt_vm_optimizer.operation.elements import get_cpu, get_cputune, remove_elements, get_number
 
 IOTHREADS = 'iothreads'
 
@@ -86,8 +87,6 @@ def _opt_cpu_pinning(domain, capabilities, settings):
         cpus_to_pin, topology = get_cpus_to_pin(cells_list[0], vcpus, settings.prefer_hyperthread_pinning)
         cpus_to_pin = list(sorted(cpus_to_pin.values(), key=lambda x: x.id))
         _generate_ids(cpus_to_pin)
-
-        print(topology)
 
         if settings.profile == Profile.SERVER:
             _set_underlying_topology(domain, topology)

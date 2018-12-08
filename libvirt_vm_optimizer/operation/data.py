@@ -1,6 +1,7 @@
-from operation.elements import get_number
-from util.utils import to_bytes, has
 from lxml import etree
+
+from libvirt_vm_optimizer.operation.elements import get_number
+from libvirt_vm_optimizer.util.utils import to_bytes, has
 
 
 class Capabilities:

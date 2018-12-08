@@ -1,6 +1,7 @@
 import argparse
 from argparse import ArgumentError
-from util.utils import Profile
+
+from libvirt_vm_optimizer.util.utils import Profile
 
 
 class Settings:
@@ -22,7 +23,7 @@ class Settings:
 class ArgParser:
     @staticmethod
     def require_args():
-        parser = argparse.ArgumentParser(usage='libvirt-optimizer.py [LIBVIRT_XML]\n'
+        parser = argparse.ArgumentParser(usage='libvirt-vm-optimizer.py [LIBVIRT_XML]\n'
                                                '\n'
                                                ' - optimizes LIBVIRT_XML (supports kvm|qemu)')
         parser.add_argument('LIBVIRT_XML', nargs='?',

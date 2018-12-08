@@ -1,9 +1,10 @@
 from lxml import etree
 import libvirt
-from operation.util import XMLExeption
-from util.utils import has
-from operation.elements import get_text
-from operation.data import NUMACell, Topology
+
+from libvirt_vm_optimizer.operation.util import XMLExeption
+from libvirt_vm_optimizer.util.utils import has
+from libvirt_vm_optimizer.operation.elements import get_text
+from libvirt_vm_optimizer.operation.data import NUMACell, Topology
 
 
 def finalize_capabilities(capabilities, settings):

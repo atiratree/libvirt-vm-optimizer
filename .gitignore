@@ -31,3 +31,8 @@ out/
 
 
 *.xml
+
+dist/
+build/
+libvirt_vm_optimizer.egg-info/
+caps/

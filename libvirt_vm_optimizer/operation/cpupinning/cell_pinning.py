@@ -1,6 +1,7 @@
-from copy import deepcopy
-from operation.data import Topology
 import math
+from copy import deepcopy
+
+from libvirt_vm_optimizer.operation.data import Topology
 
 
 def get_cpus_to_pin(cell, pin_count, prefer_hyperthread_pinning):

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 import sys
-from util.arg_parser import ArgParser
-from operation.optimize import optimize
-from operation.capabilities.domain import get_domain_with_capabilities
-from operation.capabilities.capabilities import finalize_capabilities
 from lxml import etree
-from util.utils import eprint
-from operation.util import indent
+
+from libvirt_vm_optimizer.util.arg_parser import ArgParser
+from libvirt_vm_optimizer.operation.optimize import optimize
+from libvirt_vm_optimizer.operation.capabilities.domain import get_domain_with_capabilities
+from libvirt_vm_optimizer.operation.capabilities.capabilities import finalize_capabilities
+from libvirt_vm_optimizer.util.utils import eprint
+from libvirt_vm_optimizer.operation.util import indent
 
 
 def run(settings):
@@ -36,8 +37,12 @@ def run(settings):
         xml_result.write(out_file, pretty_print=True)
 
 
-if __name__ == "__main__":
+def main():
     try:
         run(ArgParser.require_args())
     except Exception as e:
         eprint(e)
+
+
+if __name__ == "__main__":
+    main()

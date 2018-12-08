@@ -1,7 +1,7 @@
 from lxml import etree
 
-from operation.util import XMLExeption
-from util.utils import has
+from libvirt_vm_optimizer.operation.util import XMLExeption
+from libvirt_vm_optimizer.util.utils import has
 
 
 def get_text(node):
