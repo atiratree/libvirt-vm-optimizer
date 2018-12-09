@@ -65,6 +65,12 @@ class NUMACell:
             cpu = CPU(xcpu)
             self.cpus[cpu.id] = cpu
 
+    def is_multithreaded(self):
+        for cpu in self.cpus.values():
+            if cpu.is_multithreaded():
+                return True
+        return False
+
     def __repr__(self) -> str:
         return f'{str(self.id)} : memory {self.memory_bytes}B'
 
@@ -90,6 +96,12 @@ class CPU:
         vcpupin.set('vcpu', str(self.vcpu_id))
         vcpupin.set('cpuset', str(self.id))
         return vcpupin
+
+    def is_multithreaded(self):
+        s = len(self.siblings)
+        if s > 1 or (s == 1 and self.id not in self.siblings):
+            return True
+        return False
 
     def __repr__(self) -> str:
         return f'{str(self.id)} : siblings {str(self.siblings)}'

@@ -4,28 +4,24 @@ from copy import deepcopy
 from libvirt_vm_optimizer.operation.data import Topology
 
 
-def get_cpus_to_pin(cell, pin_count, prefer_multithread_pinning):
+def get_cpus_to_pin(cell, pin_count):
     """
 
     :param cell: NUMA node
     :param pin_count: attempts to pin pin_count number of cpus to this cell
-    :param prefer_multithread_pinning: pins sibling threads if possible
     :return: cpus to pin and results topology of this cell
     """
     cell_cpus = cell.cpus
     cpus_to_pin = {}
 
-    if prefer_multithread_pinning:
-        cpus_to_pin = _get_pinning_with_siblings(cell_cpus, pin_count)
-    else:
-        while True:
-            # try to pin cpus in rounds to minimize siblings
-            first_cell_cpus_next_round = {k: v for (k, v) in cell_cpus.items() if k not in cpus_to_pin}
-            to_pin = _get_pinning_without_siblings(first_cell_cpus_next_round, pin_count - len(cpus_to_pin))
+    while True:
+        # try to pin cpus in rounds to minimize siblings
+        first_cell_cpus_next_round = {k: v for (k, v) in cell_cpus.items() if k not in cpus_to_pin}
+        to_pin = _get_pinning_without_siblings(first_cell_cpus_next_round, pin_count - len(cpus_to_pin))
 
-            cpus_to_pin.update(to_pin)
-            if not to_pin:  # no more cpus
-                break
+        cpus_to_pin.update(to_pin)
+        if not to_pin:  # no more cpus
+            break
 
     max_sibling_count = 0
     # remove unnecessary siblings and resolve topology
@@ -51,34 +47,5 @@ def _get_pinning_without_siblings(cell_cpus, pin_count):
         if not set(cpus_to_pin).intersection(pin_cpu.siblings):  # append only if it's siblings are not present
             cpus_to_pin[pin_cpu.id] = deepcopy(pin_cpu)
             pin_count -= 1
-
-    return cpus_to_pin
-
-
-def _get_pinning_with_siblings(cell_cpus, pin_count):
-    cpu_ids = list(sorted(cell_cpus.keys()))
-    add_pin_idx = 0
-
-    cpus_to_pin = {}
-
-    while pin_count > 0:
-        if len(cpu_ids) == 0:
-            break
-
-        # get lowest id or pin sibling
-        pin_cpu = cell_cpus.get(cpu_ids.pop(add_pin_idx))
-
-        # pin
-        cpus_to_pin[pin_cpu.id] = deepcopy(pin_cpu)
-
-        # resolve new sibling idx
-        for idx, cpu_id in enumerate(cpu_ids):
-            if cpu_id in pin_cpu.siblings:
-                add_pin_idx = idx
-                break
-        else:
-            add_pin_idx = 0
-
-        pin_count -= 1
 
     return cpus_to_pin

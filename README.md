@@ -1,6 +1,6 @@
 # libvirt VM optimizer
 
-Optimizes libvirt kvm Virtual Machines.
+Optimizes libvirt QEMU/KVM Virtual Machines.
 
 ## Prerequisites
 

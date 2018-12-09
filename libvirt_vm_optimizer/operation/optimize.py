@@ -1,7 +1,7 @@
 from lxml import etree
 import sys
 
-from libvirt_vm_optimizer.util.utils import to_bytes, Profile
+from libvirt_vm_optimizer.util.utils import to_bytes, Profile, has
 from libvirt_vm_optimizer.operation.cpupinning.cell_pinning import get_cpus_to_pin
 from libvirt_vm_optimizer.operation.elements import get_cpu, get_cputune, remove_elements, get_number
 
@@ -18,11 +18,12 @@ def optimize(domain, capabilities, settings):
     supports = capabilities.supported_features
     profile = settings.profile
 
-    if profile != Profile.CPU and supports.iothreads:
-        _opt_iothreads(domain)
+    if profile != Profile.CPU:
+        if supports.iothreads:
+            _opt_iothreads(domain)
 
-    if sys.platform.startswith('linux'):
-        _opt_native_io(domain)
+        if sys.platform.startswith('linux'):
+            _opt_native_io(domain)
 
     if supports.host_passthrough:
         _opt_host_passthrough(domain, capabilities)
@@ -82,19 +83,30 @@ def _opt_cpu_pinning(domain, capabilities, settings):
     cells = capabilities.numa_cells
     cells_list = list(cells.values())
 
+    multithreaded = False
     cpus_to_pin = None
-    if len(cells_list) == 1:
-        cpus_to_pin, topology = get_cpus_to_pin(cells_list[0], vcpus, settings.prefer_multithread_pinning)
-        cpus_to_pin = list(sorted(cpus_to_pin.values(), key=lambda x: x.id))
-        _generate_ids(cpus_to_pin)
+    topology = None
 
+    if len(cells_list) == 1:
+        cpus_to_pin, multithreaded, topo = _get_single_cell_pinning(cells_list[0], vcpus)
         if settings.profile == Profile.SERVER:
+            topology = topo
+
+    if not multithreaded or settings.force_multithreaded_pinning:  # SMT was not tested
+        xcpu_tune = get_cputune(domain)
+        if xcpu_tune.find('vcpupin') is None and cpus_to_pin:  # do not overwrite present pinning
+            for _, cpu_to_pin in enumerate(cpus_to_pin):
+                xcpu_tune.append(cpu_to_pin.as_xml())
+        if has(topology):
             _set_underlying_topology(domain, topology)
 
-    xcpu_tune = get_cputune(domain)
-    if xcpu_tune.find('vcpupin') is None and cpus_to_pin:  # do not overwrite present pinning
-        for _, cpu_to_pin in enumerate(cpus_to_pin):
-            xcpu_tune.append(cpu_to_pin.as_xml())
+
+def _get_single_cell_pinning(cell, vcpus):
+    cpus_to_pin, topology = get_cpus_to_pin(cell, vcpus)
+    cpus_to_pin = list(sorted(cpus_to_pin.values(), key=lambda x: x.id))
+    _generate_ids(cpus_to_pin)
+
+    return cpus_to_pin, cell.is_multithreaded(), topology
 
 
 def _set_underlying_topology(domain, topology):
