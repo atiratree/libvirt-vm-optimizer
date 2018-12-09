@@ -9,7 +9,7 @@ class Settings:
                  output_xml=None,
                  in_place=False,
                  profile=Profile.DEFAULT,
-                 prefer_hyperthread_pinning=False,
+                 prefer_multithread_pinning=False,
                  connection_uri=None):
         self.libvirt_xml = libvirt_xml
         self.output_xml = output_xml
@@ -17,7 +17,7 @@ class Settings:
         self.in_place = in_place
         self.connection_uri = connection_uri
 
-        self.prefer_hyperthread_pinning = prefer_hyperthread_pinning
+        self.prefer_multithread_pinning = prefer_multithread_pinning
 
 
 class ArgParser:
@@ -43,9 +43,9 @@ class ArgParser:
                             default='default',
                             required=False, const=True,
                             help=f'one of (default, cpu, server )')
-        parser.add_argument('-t', '--prefer-hyperthreading', action='store_true',
-                            dest='hyperthreading',
-                            help=f'prefer hyperthreading when pinning cpus (slower but prefered when running multiple VMs)')
+        parser.add_argument('-m', '--prefer-multithreading', action='store_true',
+                            dest='multithreading',
+                            help=f'prefer multithreading when pinning cpus (slower but prefered when running multiple VMs)')
 
         parser.add_argument('-c', '--connect', type=str, nargs='?',
                             dest='uri',
@@ -64,7 +64,7 @@ class ArgParser:
         profile = Profile.from_str(args.profile)
         in_place = args.in_place
         uri = args.uri
-        hyperthreading = args.hyperthreading
+        multithreading = args.multithreading
 
         if in_place and not libvirt_xml:
             raise ArgumentError(None, message="no LIBVIRT_XML specified")
@@ -73,5 +73,5 @@ class ArgParser:
                         output_xml=output_xml,
                         in_place=in_place,
                         profile=profile,
-                        prefer_hyperthread_pinning=hyperthreading,
+                        prefer_multithread_pinning=multithreading,
                         connection_uri=uri)

@@ -4,18 +4,18 @@ from copy import deepcopy
 from libvirt_vm_optimizer.operation.data import Topology
 
 
-def get_cpus_to_pin(cell, pin_count, prefer_hyperthread_pinning):
+def get_cpus_to_pin(cell, pin_count, prefer_multithread_pinning):
     """
 
     :param cell: NUMA node
     :param pin_count: attempts to pin pin_count number of cpus to this cell
-    :param prefer_hyperthread_pinning: pins sibling (hyperthreading) threads if possible
+    :param prefer_multithread_pinning: pins sibling threads if possible
     :return: cpus to pin and results topology of this cell
     """
     cell_cpus = cell.cpus
     cpus_to_pin = {}
 
-    if prefer_hyperthread_pinning:
+    if prefer_multithread_pinning:
         cpus_to_pin = _get_pinning_with_siblings(cell_cpus, pin_count)
     else:
         while True:
@@ -34,7 +34,7 @@ def get_cpus_to_pin(cell, pin_count, prefer_hyperthread_pinning):
         max_sibling_count = max(max_sibling_count, len(cpu.siblings))
 
     threads = max_sibling_count + 1
-    cores = math.ceil(len(cpus_to_pin) / threads)
+    cores = math.ceil(len(cpus_to_pin) / threads)  # libvirt behaviour
     return cpus_to_pin, Topology(1, cores, threads)
 
 

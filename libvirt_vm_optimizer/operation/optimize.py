@@ -84,7 +84,7 @@ def _opt_cpu_pinning(domain, capabilities, settings):
 
     cpus_to_pin = None
     if len(cells_list) == 1:
-        cpus_to_pin, topology = get_cpus_to_pin(cells_list[0], vcpus, settings.prefer_hyperthread_pinning)
+        cpus_to_pin, topology = get_cpus_to_pin(cells_list[0], vcpus, settings.prefer_multithread_pinning)
         cpus_to_pin = list(sorted(cpus_to_pin.values(), key=lambda x: x.id))
         _generate_ids(cpus_to_pin)
 

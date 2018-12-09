@@ -2,8 +2,11 @@
 
 Optimizes libvirt kvm Virtual Machines.
 
+## Prerequisites
+
 ## Installation
--  `pip install libvirt-vm-optimizer` (pip3)
+-  Install `libvirt-python3` (for example `yum install libvirt-python3` on fedora)
+-  `pip3 install libvirt-vm-optimizer`
 
 ## Usage
 
@@ -16,7 +19,7 @@ virsh dumpxml vm | ./libvirt-optimizer.py -p server | virsh define /dev/stdin
 
 ### Help
 ```
-usage: libvirt-optimizer.py [LIBVIRT_XML]
+usage: libvirt-vm-optimizer.py [LIBVIRT_XML]
 
  - optimizes LIBVIRT_XML (supports kvm|qemu)
 
@@ -31,10 +34,11 @@ optional arguments:
   -i, --in-place        edit files in place
   -p [PROFILE], --profile [PROFILE]
                         one of (default, cpu, server )
-  -t, --prefer-hyperthreading
-                        prefer hyperthreading when pinning cpus (slower but
+  -m, --prefer-multithreading
+                        prefer multithreading when pinning cpus (slower but
                         prefered when running multiple VMs)
   -c [URI], --connect [URI]
                         connection URI (uses default connection if not
                         specified)
+
 ```
