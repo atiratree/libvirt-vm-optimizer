@@ -72,7 +72,7 @@ class NUMACell:
         return False
 
     def __repr__(self) -> str:
-        return f'{str(self.id)} : memory {self.memory_bytes}B'
+        return f'{str(self.id)} : memory {self.memory_bytes}B : cpus {len(self.cpus)}'
 
 
 class CPU:

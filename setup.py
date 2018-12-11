@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="libvirt-vm-optimizer",
-    version="0.0.8",
+    version="0.0.9",
     author="suomiy",
     description="Optimization for libvirt VMs (QEMU/KVM)",
     long_description=long_description,
@@ -21,6 +21,7 @@ setuptools.setup(
     install_requires=[
           'lxml',
       ],
+    python_requires='>=3',
     entry_points={
         'console_scripts': [
             'libvirt-vm-optimizer=libvirt_vm_optimizer.__main__:main',

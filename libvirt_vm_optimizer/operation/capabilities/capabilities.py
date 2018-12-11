@@ -6,6 +6,7 @@ from libvirt_vm_optimizer.util.utils import has
 from libvirt_vm_optimizer.operation.elements import get_text
 from libvirt_vm_optimizer.operation.data import NUMACell, Topology
 
+YES = 'yes'
 
 def finalize_capabilities(capabilities, settings):
     connection = None
@@ -76,8 +77,8 @@ def _set_guest_caps(capabilities, capabilities_xml):
 def _set_domain_caps(capabilities, domain_capabilities_xml):
     iothreads = domain_capabilities_xml.find("iothreads")
     if has(iothreads):
-        capabilities.supported_features.iothreads = iothreads.get("supported") == 'yes'
+        capabilities.supported_features.iothreads = iothreads.get("supported") == YES
 
     host_passthrough = domain_capabilities_xml.find("cpu/mode[@name='host-passthrough']")
     capabilities.supported_features.host_passthrough = has(host_passthrough) and host_passthrough.get(
-        'supported') == 'yes'
+        'supported') == YES

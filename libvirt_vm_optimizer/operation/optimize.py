@@ -70,27 +70,23 @@ def _opt_host_passthrough(domain, capabilities):
         cache.set('mode', 'passthrough')
 
 
-def _generate_ids(cpus):
-    for i, cpu in enumerate(cpus):
-        cpu.vcpu_id = i
-
-
 def _opt_cpu_pinning(domain, capabilities, settings):
     vcpus, _ = get_number(domain, 'vcpu', assert_positive=True)
-    memory, memory_unit = get_number(domain, 'memory', assert_positive=True)
-    memory_bytes = to_bytes(memory, memory_unit)
-
-    cells = capabilities.numa_cells
-    cells_list = list(cells.values())
+    cells = list(capabilities.numa_cells.values())
 
     multithreaded = False
     cpus_to_pin = None
     topology = None
 
-    if len(cells_list) == 1:
-        cpus_to_pin, multithreaded, topo = _get_single_cell_pinning(cells_list[0], vcpus)
+    if len(cells) == 1:
+        first_cell = cells[0]
+        cpus_to_pin, topo = _get_single_cell_pinning(first_cell, vcpus)
+        multithreaded = first_cell.is_multithreaded()
+
         if settings.profile == Profile.SERVER:
             topology = topo
+    else:
+        return
 
     if not multithreaded or settings.force_multithreaded_pinning:  # SMT was not tested
         xcpu_tune = get_cputune(domain)
@@ -106,7 +102,7 @@ def _get_single_cell_pinning(cell, vcpus):
     cpus_to_pin = list(sorted(cpus_to_pin.values(), key=lambda x: x.id))
     _generate_ids(cpus_to_pin)
 
-    return cpus_to_pin, cell.is_multithreaded(), topology
+    return cpus_to_pin, topology
 
 
 def _set_underlying_topology(domain, topology):
@@ -114,3 +110,8 @@ def _set_underlying_topology(domain, topology):
     xtopology = xcpu.find('topology')
     if xtopology is None:
         xcpu.append(topology.as_xml())
+
+
+def _generate_ids(cpus):
+    for i, cpu in enumerate(cpus):
+        cpu.vcpu_id = i

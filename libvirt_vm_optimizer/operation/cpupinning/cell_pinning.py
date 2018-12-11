@@ -19,9 +19,9 @@ def get_cpus_to_pin(cell, pin_count):
         first_cell_cpus_next_round = {k: v for (k, v) in cell_cpus.items() if k not in cpus_to_pin}
         to_pin = _get_pinning_without_siblings(first_cell_cpus_next_round, pin_count - len(cpus_to_pin))
 
-        cpus_to_pin.update(to_pin)
         if not to_pin:  # no more cpus
             break
+        cpus_to_pin.update(to_pin)
 
     max_sibling_count = 0
     # remove unnecessary siblings and resolve topology

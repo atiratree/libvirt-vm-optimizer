@@ -34,9 +34,9 @@ optional arguments:
   -i, --in-place        edit files in place
   -p [PROFILE], --profile [PROFILE]
                         one of (default, cpu, server )
-  -m, --prefer-multithreading
-                        prefer multithreading when pinning cpus (slower but
-                        prefered when running multiple VMs)
+  -m, --force-multithreaded-pinning
+                        setup CPU pinning in simultaneous multithreading
+                        systems (experimental and may be slower)
   -c [URI], --connect [URI]
                         connection URI (uses default connection if not
                         specified)
